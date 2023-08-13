@@ -28,7 +28,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
         String header = request.getHeader(SecurityConstants.HEADER_STRING);
 
-        if(header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+        if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             chain.doFilter(request, response);
             return;
         }
@@ -49,7 +49,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
         String token = authorizationHeader.replace(SecurityConstants.TOKEN_PREFIX, "");
 
-        byte[] secretKeyBytes = Base64.getEncoder().encode(SecurityConstants.TOKEN_SECRET.getBytes());
+        byte[] secretKeyBytes = Base64.getEncoder().encode(SecurityConstants.getTokenSecret().getBytes());
         SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
 
         JwtParser jwtParser = Jwts.parserBuilder()
