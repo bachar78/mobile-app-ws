@@ -14,9 +14,13 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @GetMapping
-    public String getUser() {
-        return "Get user was called";
+
+    @GetMapping(path = "/{id}")
+    public UserRest getUser(@PathVariable String id) {
+        UserRest returnedValue = new UserRest();
+        UserDto userDto = userService.getUserByUserId(id);
+        BeanUtils.copyProperties(userDto, returnedValue);
+        return returnedValue;
     }
 
     @PostMapping
