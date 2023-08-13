@@ -1,5 +1,8 @@
 package com.appsdevelpersblog.app.ws.security;
 
+import com.appsdevelpersblog.app.ws.SpringApplicationContext;
+import com.appsdevelpersblog.app.ws.service.UserService;
+import com.appsdevelpersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelpersblog.app.ws.ui.model.request.UserLoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -8,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -59,7 +63,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .setExpiration(
                         Date.from(now.plusMillis(SecurityConstants.EXPIRATION_TIME)))
                 .setIssuedAt(Date.from(now)).signWith(secretKey, SignatureAlgorithm.HS512).compact();
-
+        UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
         res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+        UserDto userDto = userService.getUser(userName);
+        res.addHeader("UserId", userDto.getUserId());
     }
 }

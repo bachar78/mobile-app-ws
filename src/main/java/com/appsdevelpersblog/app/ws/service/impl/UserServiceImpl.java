@@ -29,13 +29,14 @@ public class UserServiceImpl implements UserService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public UserDto  createUser(UserDto user) {
+    public UserDto createUser(UserDto user) {
         UserEntity userEntity = new UserEntity();
         BeanUtils.copyProperties(user, userEntity);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userEntity.setUserId(utils.generateUserId(30));
         UserEntity storedEntity = userRepository.findByEmail(user.getEmail());
-        if(storedEntity != null) throw new RuntimeException("User Email is already used. Choose another email address");
+        if (storedEntity != null)
+            throw new RuntimeException("User Email is already used. Choose another email address");
         UserEntity storedValue = userRepository.save(userEntity);
         UserDto returnedValue = new UserDto();
         BeanUtils.copyProperties(storedValue, returnedValue);
@@ -43,9 +44,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUser(String email) {
+        UserEntity user = userRepository.findByEmail(email);
+        if (user == null) throw new UsernameNotFoundException(email);
+        UserDto returnedUser = new UserDto();
+        BeanUtils.copyProperties(user, returnedUser);
+        return returnedUser;
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username);
-        if(user == null) throw new UsernameNotFoundException(username);
-        return new User(username, user.getEncryptedPassword(),new ArrayList<>()); //this list is the list of granted authorities. These are user's roles and permissions
+        if (user == null) throw new UsernameNotFoundException(username);
+        return new User(username, user.getEncryptedPassword(), new ArrayList<>()); //this list is the list of granted authorities. These are user's roles and permissions
     }
 }
