@@ -1,7 +1,9 @@
 package com.appsdevelpersblog.app.ws.ui.controller;
 
+import com.appsdevelpersblog.app.ws.Exceptions.UserServiceException;
 import com.appsdevelpersblog.app.ws.service.UserService;
 import com.appsdevelpersblog.app.ws.shared.dto.UserDto;
+import com.appsdevelpersblog.app.ws.ui.model.reponse.ErrorMessages;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.UserRest;
 import com.appsdevelpersblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import org.springframework.beans.BeanUtils;
@@ -26,9 +28,11 @@ public class UserController {
 
     @PostMapping(consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException {
         UserRest returnValue = new UserRest();
         UserDto userDto = new UserDto();
+        if (userDetails.getFirstName().isEmpty())
+            throw new NullPointerException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
         BeanUtils.copyProperties(userDetails, userDto);
         UserDto createdUser = userService.createUser(userDto);
         BeanUtils.copyProperties(createdUser, returnValue);
