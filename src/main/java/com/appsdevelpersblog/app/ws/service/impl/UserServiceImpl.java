@@ -65,6 +65,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto updateUser(UserDto userDto, String id) {
+        UserDto returnedValue = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(id);
+        if(userEntity == null) throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        return returnedValue;
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmail(username);
         if (user == null) throw new UsernameNotFoundException(username);
