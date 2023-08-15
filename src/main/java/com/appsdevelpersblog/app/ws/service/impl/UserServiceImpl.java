@@ -1,10 +1,12 @@
 package com.appsdevelpersblog.app.ws.service.impl;
 
+import com.appsdevelpersblog.app.ws.Exceptions.UserServiceException;
 import com.appsdevelpersblog.app.ws.UserRepository;
 import com.appsdevelpersblog.app.ws.oi.entity.UserEntity;
 import com.appsdevelpersblog.app.ws.service.UserService;
 import com.appsdevelpersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelpersblog.app.ws.shared.dto.Utils;
+import com.appsdevelpersblog.app.ws.ui.model.reponse.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 @Service
@@ -29,14 +32,14 @@ public class UserServiceImpl implements UserService {
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public UserDto createUser(UserDto user) {
+    public UserDto createUser(UserDto user) throws UserServiceException {
         UserEntity userEntity = new UserEntity();
         BeanUtils.copyProperties(user, userEntity);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userEntity.setUserId(utils.generateUserId(30));
         UserEntity storedEntity = userRepository.findByEmail(user.getEmail());
         if (storedEntity != null)
-            throw new RuntimeException("User Email is already used. Choose another email address");
+            throw new UserServiceException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
         UserEntity storedValue = userRepository.save(userEntity);
         UserDto returnedValue = new UserDto();
         BeanUtils.copyProperties(storedValue, returnedValue);
@@ -50,6 +53,15 @@ public class UserServiceImpl implements UserService {
         UserDto returnedUser = new UserDto();
         BeanUtils.copyProperties(user, returnedUser);
         return returnedUser;
+    }
+
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserDto userDto = new UserDto();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null) throw new UsernameNotFoundException(userId);
+        BeanUtils.copyProperties(userEntity, userDto);
+        return userDto;
     }
 
     @Override

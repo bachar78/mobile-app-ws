@@ -1,11 +1,14 @@
 package com.appsdevelpersblog.app.ws.ui.controller;
 
+import com.appsdevelpersblog.app.ws.Exceptions.UserServiceException;
 import com.appsdevelpersblog.app.ws.service.UserService;
 import com.appsdevelpersblog.app.ws.shared.dto.UserDto;
+import com.appsdevelpersblog.app.ws.ui.model.reponse.ErrorMessages;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.UserRest;
 import com.appsdevelpersblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,15 +17,22 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @GetMapping
-    public String getUser() {
-        return "Get user was called";
+
+    @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public UserRest getUser(@PathVariable String id) {
+        UserRest returnedValue = new UserRest();
+        UserDto userDto = userService.getUserByUserId(id);
+        BeanUtils.copyProperties(userDto, returnedValue);
+        return returnedValue;
     }
 
-    @PostMapping
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+    @PostMapping(consumes = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException {
         UserRest returnValue = new UserRest();
         UserDto userDto = new UserDto();
+        if (userDetails.getFirstName().isEmpty())
+            throw new NullPointerException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
         BeanUtils.copyProperties(userDetails, userDto);
         UserDto createdUser = userService.createUser(userDto);
         BeanUtils.copyProperties(createdUser, returnValue);
