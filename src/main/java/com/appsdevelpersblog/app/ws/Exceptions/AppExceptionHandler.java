@@ -20,6 +20,7 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(err, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    //Handling Exception that not being handled
     @ExceptionHandler(value = {Exception.class})
     public ResponseEntity<Object> handleOtherExceptions(Exception ex, WebRequest webRequest) {
         ErrorMessage err = new ErrorMessage(ex.getMessage(), new Date());
