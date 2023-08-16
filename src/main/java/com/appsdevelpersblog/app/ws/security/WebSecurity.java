@@ -70,7 +70,7 @@ public class WebSecurity {
     //creating authentication filter to customize the login path. we add it to the http filter
     protected AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
         final AuthenticationFilter filter = new AuthenticationFilter(authenticationManager);
-        filter.setFilterProcessesUrl("/users/login");
+        filter.setFilterProcessesUrl(SecurityConstants.LOGIN);
         return filter;
     }
 
