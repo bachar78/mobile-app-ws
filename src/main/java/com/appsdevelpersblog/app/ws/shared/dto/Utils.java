@@ -1,14 +1,19 @@
 package com.appsdevelpersblog.app.ws.shared.dto;
 
+import com.appsdevelpersblog.app.ws.Exceptions.UserServiceException;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.UserRest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Component
-public class Utils {
+public
+class Utils {
 
     private final Random RANDOM = new SecureRandom();
     private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -29,5 +34,20 @@ public class Utils {
         UserRest returnedUser = new UserRest();
         BeanUtils.copyProperties(user, returnedUser);
         return returnedUser;
+    }
+
+    public static <S, T> List<T> convertList(List<S> sourceList, Class<T> targetClass) {
+        return sourceList.stream()
+                .map(source -> {
+                    T target = null;
+                    try {
+                        target = targetClass.getDeclaredConstructor().newInstance();
+                        BeanUtils.copyProperties(source, target);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Conversion failed for an element in the list");
+                    }
+                    return target;
+                })
+                .collect(Collectors.toList());
     }
 }
