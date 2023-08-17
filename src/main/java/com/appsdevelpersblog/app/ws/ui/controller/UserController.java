@@ -13,6 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.appsdevelpersblog.app.ws.shared.dto.Utils.generateUserRest;
+
 @RestController
 @RequestMapping("api/v1/users") //http://localhost:8080/users
 public class UserController {
@@ -61,6 +67,13 @@ public class UserController {
         userService.deleteUser(id);
         res.setOperationResult(RequestOperationStatus.SUCCESS.name());
         return res;
+    }
+
+    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "limit", defaultValue = "20") int limit) {
+        List<UserDto> users = userService.getUsers(page, limit);
+        List<UserRest> returnedValue = users.stream().map(user -> generateUserRest(user)).collect(Collectors.toList());
+        return returnedValue;
     }
 
 

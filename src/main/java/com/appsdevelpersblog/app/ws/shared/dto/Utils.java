@@ -1,5 +1,7 @@
 package com.appsdevelpersblog.app.ws.shared.dto;
 
+import com.appsdevelpersblog.app.ws.ui.model.reponse.UserRest;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -21,5 +23,11 @@ public class Utils {
             returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
         return new String(returnValue);
+    }
+
+    public static UserRest generateUserRest(UserDto user) {
+        UserRest returnedUser = new UserRest();
+        BeanUtils.copyProperties(user, returnedUser);
+        return returnedUser;
     }
 }
