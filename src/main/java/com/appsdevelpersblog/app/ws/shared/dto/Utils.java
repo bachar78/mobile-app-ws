@@ -2,6 +2,7 @@ package com.appsdevelpersblog.app.ws.shared.dto;
 
 import com.appsdevelpersblog.app.ws.Exceptions.UserServiceException;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.UserRest;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
@@ -39,15 +40,14 @@ class Utils {
     public static <S, T> List<T> convertList(List<S> sourceList, Class<T> targetClass) {
         return sourceList.stream()
                 .map(source -> {
-                    T target = null;
+                    ModelMapper modelMapper = new ModelMapper();
                     try {
-                        target = targetClass.getDeclaredConstructor().newInstance();
-                        BeanUtils.copyProperties(source, target);
+                        T target = targetClass.getDeclaredConstructor().newInstance();
+                        modelMapper.map(source, target);
+                        return target;
                     } catch (Exception e) {
                         throw new RuntimeException("Conversion failed for an element in the list");
                     }
-                    return target;
-                })
-                .collect(Collectors.toList());
+                }).toList();
     }
 }

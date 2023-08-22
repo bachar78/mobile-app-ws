@@ -1,27 +1,24 @@
 package com.appsdevelpersblog.app.ws.oi.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity(name = "users")
 public class UserEntity implements Serializable {
-    @Setter(AccessLevel.NONE)
-    @Getter(AccessLevel.NONE)
-    @Serial
-    private static final long serialVersionUID = -2499788572782503240L;
+
 
     @Id
     @GeneratedValue
+    @Setter(AccessLevel.NONE)
+    @Getter(AccessLevel.NONE)
     private long id;
 
     @Column(nullable = false)
@@ -39,8 +36,8 @@ public class UserEntity implements Serializable {
     @Column(nullable = false)
     private String encryptedPassword;
 
-    private String emailVerificationToken;
+    @OneToMany(mappedBy = "userDetails", cascade = CascadeType.ALL)
+    private List<AddressEntity> addresses;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private Boolean emailVerificationStatus;
+
 }
