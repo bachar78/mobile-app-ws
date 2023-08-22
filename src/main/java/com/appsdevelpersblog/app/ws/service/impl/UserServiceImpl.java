@@ -9,6 +9,7 @@ import com.appsdevelpersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelpersblog.app.ws.shared.dto.Utils;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.ErrorMessages;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto user) throws UserServiceException {
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 //        user.getAddresses().stream().map(address -> {
 //            address.setUserDetails(user);
 //            address.setAddressId(utils.generateAddressId(30));
@@ -58,7 +60,8 @@ public class UserServiceImpl implements UserService {
         if (storedEntity != null)
             throw new UserServiceException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
         UserEntity storedValue = userRepository.save(userEntity);
-        return modelMapper.map(storedValue, UserDto.class);
+        UserDto returnedValue =  modelMapper.map(storedValue, UserDto.class);
+        return returnedValue;
     }
 
     @Override

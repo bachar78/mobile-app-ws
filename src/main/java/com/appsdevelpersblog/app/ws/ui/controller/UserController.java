@@ -9,6 +9,8 @@ import com.appsdevelpersblog.app.ws.ui.model.reponse.RequestOperationStatus;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.UserRest;
 import com.appsdevelpersblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -41,6 +43,7 @@ public class UserController {
 //        UserDto userDto = new UserDto();
 //        BeanUtils.copyProperties(userDetails, userDto);
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserDto userDto = modelMapper.map(userDetails, UserDto.class);
         UserDto createdUser = userService.createUser(userDto);
         UserRest returnValue = modelMapper.map(createdUser, UserRest.class);
