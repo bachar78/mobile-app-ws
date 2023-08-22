@@ -4,9 +4,11 @@ import com.appsdevelpersblog.app.ws.Exceptions.UserServiceException;
 import com.appsdevelpersblog.app.ws.UserRepository;
 import com.appsdevelpersblog.app.ws.oi.entity.UserEntity;
 import com.appsdevelpersblog.app.ws.service.UserService;
+import com.appsdevelpersblog.app.ws.shared.dto.AddressDto;
 import com.appsdevelpersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelpersblog.app.ws.shared.dto.Utils;
 import com.appsdevelpersblog.app.ws.ui.model.reponse.ErrorMessages;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,17 +39,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto user) throws UserServiceException {
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        ModelMapper modelMapper = new ModelMapper();
+//        user.getAddresses().stream().map(address -> {
+//            address.setUserDetails(user);
+//            address.setAddressId(utils.generateAddressId(30));
+//            return address;
+//        });
+        for (int i = 0; i < user.getAddresses().size(); i++) {
+            AddressDto address = user.getAddresses().get(i);
+            address.setAddressId(utils.generateAddressId(30));
+            address.setUserDetails(user);
+            user.getAddresses().set(i, address);
+        }
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userEntity.setUserId(utils.generateUserId(30));
         UserEntity storedEntity = userRepository.findByEmail(user.getEmail());
         if (storedEntity != null)
             throw new UserServiceException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
         UserEntity storedValue = userRepository.save(userEntity);
-        UserDto returnedValue = new UserDto();
-        BeanUtils.copyProperties(storedValue, returnedValue);
-        return returnedValue;
+        return modelMapper.map(storedValue, UserDto.class);
     }
 
     @Override
